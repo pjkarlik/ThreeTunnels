@@ -1,6 +1,8 @@
 ![travis ci build](https://travis-ci.org/pjkarlik/ThreeTunnels.svg?branch=master)
 ![webpack2](https://img.shields.io/badge/webpack-2.0-brightgreen.svg) ![version](https://img.shields.io/badge/version-0.1.1-yellow.svg) ![frontend](https://img.shields.io/badge/webgl-GLSL-blue.svg)
 
+![DepthCycle](./splash.png)
+
 # ThreeJS Tunnels
 
   I love Tunnel Demos of old school, using tricks and visual cues to give illusions of ever falling or flying. This is my experiments and demos of various tunnel tricks and techniques.
