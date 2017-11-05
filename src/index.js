@@ -1,4 +1,4 @@
-import Render from './CableTunnel/index.js';
+import Render from './Basic/index.js';
 import { description, version } from '../version.json';
 
 require('../resources/styles/styles.css');
