@@ -1,4 +1,4 @@
-import Render from './Particle/index.js';
+import Render from './CubicPost/index.js';
 import { description, version } from '../version.json';
 
 require('../resources/styles/styles.css');

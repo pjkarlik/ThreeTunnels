@@ -5,8 +5,8 @@ THREE.RenderFragment = {
   		"tDiffuse": { value: null },
   		"tSize":    { value: new THREE.Vector2( 256, 256 ) },
   		"center":   { value: new THREE.Vector2( 0.5, 0.5 ) },
-  		"ratio":    { value: 512.0 },
-  		"scale":    { value: 2.0 },
+  		"ratio":    { value: 1024.0 },
+  		"scale":    { value: 1.0 },
       "frenz":    { value: 1024.0 }
 
   	},

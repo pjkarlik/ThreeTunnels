@@ -27,8 +27,8 @@ export default class Render {
       min: 0
     };
     this.tubeCongif = {
-      segments: 350,
-      detail: 25,
+      segments: 300,
+      detail: 20,
       radius: 5
     };
     this.geometry = null;
@@ -76,13 +76,13 @@ export default class Render {
 
   createScene = () => {
     const cube = new THREE.BoxBufferGeometry(
-      3, 3, 3
+      0.1, 0.1, 7.5
     );
-    const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    // const mat = new THREE.MeshPhongMaterial({
-    //   color: 0xffffff,
-    //   side: THREE.DoubleSide,
-    // });
+    // const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const mat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+    });
     this.cubeMesh = new THREE.Mesh(cube, mat);
     this.container = new THREE.Object3D();
     this.container.receiveShadow = true;
@@ -178,11 +178,8 @@ export default class Render {
     });
 
     this.tube = new THREE.Points(this.geometry, this.material);
-    // Add tube into the scene
     this.scene.add(this.tube);
 
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
     setTimeout(() => {
       this.allowChange = true;
     }, this.timeout);
@@ -197,7 +194,6 @@ export default class Render {
   };
 
   renderScene = () => {
-    // const realTime = this.frames * 0.005;
     this.stopFrame += 0.0001;
     // Get the point at the specific percentage
     const lvc = this.isRnd ? 0.01 : -(0.01);
@@ -221,7 +217,6 @@ export default class Render {
 
     // Core three Render call //
     this.renderer.render(this.scene, this.camera);
-    // this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
