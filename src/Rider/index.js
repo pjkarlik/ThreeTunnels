@@ -1,16 +1,18 @@
 import THREE from './../Three';
+import { Generator } from '../utils/simplexNoise';
 
 // Render Class Object //
 export default class Render {
   constructor() {
     this.frames = 0;
     this.stopFrame = 0;
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.devicePixelRatio = window.devicePixelRatio;
     this.keypressed = 0;
     this.keyspeed = 0;
     this.tempSpeed = 0;
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.devicePixelRatio = window.devicePixelRatio;
+    this.generator = new Generator(10);
     // Configurations //
     this.cameraConfig = {
       position: [0, 0, 0],
@@ -20,15 +22,13 @@ export default class Render {
       near: 0.1,
       far: 10000
     };
-
     this.tubeCongif = {
       segments: 300,
-      detail: 30,
+      detail: 20,
       radius: 5
     };
     this.geometry = null;
-
-    window.addEventListener('resize', this.resize, false);
+    window.addEventListener('resize', this.resize, true);
     document.addEventListener('keypress', this.setKeyPress, false);
     document.addEventListener('keyup', this.setKeyPress, false);
     this.init();
@@ -55,6 +55,12 @@ export default class Render {
     this.camera.lookAt(new THREE.Vector3(...this.cameraConfig.lookAt));
     this.scene.add(this.camera);
 
+    // Set Light //
+    this.lightA = new THREE.PointLight(0x888888, 1, 550);
+    this.lightA.castShadow = true;
+    this.lightA.shadowDarkness = 0.5;
+    this.scene.add(this.lightA);
+
     this.createScene();
   };
 
@@ -66,6 +72,19 @@ export default class Render {
   }
 
   createScene = () => {
+    const cube = new THREE.BoxBufferGeometry(
+      0.1, 0.1, 7.5
+    );
+    // const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const mat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+    });
+    this.cubeMesh = new THREE.Mesh(cube, mat);
+    this.container = new THREE.Object3D();
+    this.container.receiveShadow = true;
+    this.scene.add(this.container);
+
     /* eslint no-multi-assign: 0 */
     const initialPoints = [
       [68.5, 185.5],
@@ -79,6 +98,7 @@ export default class Render {
       [68.5, 185.5]
     ];
 
+    //Convert the array of points into vertices
     const points = initialPoints.map((point) => {
       const x = point[0];
       const y = 0;
@@ -91,18 +111,26 @@ export default class Render {
     const frames = this.path.computeFrenetFrames(this.tubeCongif.segments, true);
     this.geometry = new THREE.Geometry();
 
+    // First loop through all the circles
     for (let i = 0; i < this.tubeCongif.segments; i++) {
+      // Get the normal / binormal values for each circle
       const normal = frames.normals[i];
       const binormal = frames.binormals[i];
 
+      // Calculate the index of the circle (from 0 to 1)
       const index = i / this.tubeCongif.segments;
       const p = this.path.getPointAt(index);
 
+      // Loop for the amount of particles we want along each circle
       for (let j = 0; j < this.tubeCongif.detail; j++) {
+        // Clone the position of the point in the center
         const position = p.clone();
 
+        // Calculate the angle for each particle along the circle (from 0 to Pi*2)
         const angle = (j / this.tubeCongif.detail) *
           Math.PI * 2 + (index * Math.PI * 5);
+        // Calculate the sine of the angle
+        // Calculate the cosine from the angle
         const sin = Math.sin(angle);
         const cos = -Math.cos(angle);
 
@@ -116,9 +144,28 @@ export default class Render {
 
         // We add the normal values for each point
         position.add(normalPoint);
-        const color = new THREE.Color(`hsl(${(index * 360 * 4)}, 100%, 50%)`);
-        this.geometry.colors.push(color);
-        this.geometry.vertices.push(position);
+        const noise = Math.abs(
+          this.generator.simplex3(
+            position.x * 0.001,
+            position.y * 0.001,
+            position.z * 0.001
+          )
+        );
+        const color = new THREE.Color(
+          `hsl(${(noise * 360 * 5)}, 100%, 50%)`
+        );
+
+        const mesh = this.cubeMesh.clone(false);
+        mesh.position.set(position.x, position.y, position.z);
+        mesh.material = this.cubeMesh.material.clone(false);
+        mesh.material.color = color;
+        mesh.rotation.x = Math.random() * Math.PI * 2;
+        mesh.rotation.y = Math.random() * Math.PI * 2;
+        mesh.rotation.z = Math.random() * Math.PI * 2;
+        this.container.add(mesh);
+
+        // this.geometry.colors.push(color);
+        // this.geometry.vertices.push(position);
       }
     }
 
@@ -128,22 +175,12 @@ export default class Render {
     });
 
     this.tube = new THREE.Points(this.geometry, this.material);
-    // Add tube into the scene
     this.scene.add(this.tube);
 
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
     setTimeout(() => {
       this.allowChange = true;
     }, this.timeout);
     this.renderLoop();
-  };
-
-  resize = () => {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(this.width, this.height);
   };
 
   setKeyPress = (e) => {
@@ -155,7 +192,13 @@ export default class Render {
     } else {
       this.keyspeed = 0;
     }
-    //console.log(this.keypressed);
+  };
+
+  resize = () => {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(this.width, this.height);
   };
 
   renderScene = () => {
@@ -165,9 +208,10 @@ export default class Render {
     const p1 = this.path.getPointAt(Math.abs((this.stopFrame) % 1));
     const p2 = this.path.getPointAt(Math.abs((this.stopFrame + 0.01) % 1));
 
-    const phase = this.frames * Math.PI / 180;
-    const tempX = 2 * Math.sin(phase) * 0.45;
-    const tempY = 2 * Math.cos(phase) * 0.45;
+    const amps = 2; // + Math.sin(realTime * Math.PI / 180) * 45;
+    const tempX = amps * Math.sin(this.frames * Math.PI / 180) * 0.45;
+    const tempY = amps * Math.cos(this.frames * Math.PI / 180) * 0.45;
+    this.lightA.position.set(p2.x, p2.y, p2.z);
     // Camera
     this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z + tempY);
     this.camera.lookAt(p2);
