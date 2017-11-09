@@ -73,13 +73,24 @@ export default class Render {
 
   createScene = () => {
     const cube = new THREE.BoxBufferGeometry(
-      0.1, 0.1, 7.5
+      0.1, 0.1, 6.5
     );
+    const octa = new THREE.BoxBufferGeometry(
+      0.2, 6.5, 0.5
+    );
+    // const cube = new THREE.TetrahedronBufferGeometry(
+    //   0.6, 0
+    // );
+    // const octa = new THREE.IcosahedronBufferGeometry(
+    //   0.8, 0
+    // );
     // const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const mat = new THREE.MeshPhongMaterial({
       color: 0xffffff,
       side: THREE.DoubleSide,
     });
+
+    this.octaMesh = new THREE.Mesh(octa, mat);
     this.cubeMesh = new THREE.Mesh(cube, mat);
     this.container = new THREE.Object3D();
     this.container.receiveShadow = true;
@@ -155,7 +166,7 @@ export default class Render {
           `hsl(${(noise * 360 * 5)}, 100%, 50%)`
         );
 
-        const mesh = this.cubeMesh.clone(false);
+        const mesh = Math.random() * 255 > 240 ? this.octaMesh.clone(false) : this.cubeMesh.clone(false);
         mesh.position.set(position.x, position.y, position.z);
         mesh.material = this.cubeMesh.material.clone(false);
         mesh.material.color = color;
@@ -208,12 +219,12 @@ export default class Render {
     const p1 = this.path.getPointAt(Math.abs((this.stopFrame) % 1));
     const p2 = this.path.getPointAt(Math.abs((this.stopFrame + 0.01) % 1));
 
-    const amps = 2; // + Math.sin(realTime * Math.PI / 180) * 45;
-    const tempX = amps * Math.sin(this.frames * Math.PI / 180) * 0.45;
-    const tempY = amps * Math.cos(this.frames * Math.PI / 180) * 0.45;
+    const amps = 5;
+    const tempX = amps * Math.sin(this.frames * 0.5 * Math.PI / 180);
+    const tempY = amps * Math.cos(this.frames *0.5 * Math.PI / 180);
     this.lightA.position.set(p2.x, p2.y, p2.z);
-    // Camera
-    this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z + tempY);
+    // Camera //
+    this.camera.position.set(p1.x - tempX, p1.y, p1.z);
     this.camera.lookAt(p2);
 
     // Core three Render call //
