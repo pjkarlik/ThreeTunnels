@@ -28,7 +28,7 @@ export default class Render {
     };
     this.tubeCongif = {
       segments: 1000,
-      detail: 5,
+      detail: 7,
       radius: 3
     };
     this.geometry = null;
@@ -153,7 +153,7 @@ export default class Render {
     // const realTime = this.frames * 0.005;
     this.stopFrame += 0.0008;
     // Get the point at the specific percentage
-    const lvc = this.isRnd ? 0.01 : -(0.01);
+    const lvc = this.isRnd ? 0.06 : -(0.06);
     const p1 = this.path.getPointAt(Math.abs((this.stopFrame) % 1));
     const p2 = this.path.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
     if (Math.random() * 255 > 254 && this.allowChange) {
@@ -168,7 +168,7 @@ export default class Render {
     const tempX = amps * Math.sin(this.frames * Math.PI / 180) * 0.45;
     const tempY = amps * Math.cos(this.frames * Math.PI / 180) * 0.45;
     // Camera
-    this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z + tempY);
+    this.camera.position.set(p1.x + tempX, p1.y + 6.5, p1.z + tempY);
     this.camera.lookAt(p2);
 
     // Core three Render call //
