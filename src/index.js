@@ -1,4 +1,4 @@
-import Render from './Rider/index.js';
+import Render from './Octa/index.js';
 import { description, version } from '../version.json';
 
 require('../resources/styles/styles.css');

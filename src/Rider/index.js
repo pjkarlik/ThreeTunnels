@@ -31,6 +31,7 @@ export default class Render {
     window.addEventListener('resize', this.resize, true);
     document.addEventListener('keypress', this.setKeyPress, false);
     document.addEventListener('keyup', this.setKeyPress, false);
+    console.log('press w = forward : s = backwards');
     this.init();
   }
 
@@ -75,22 +76,18 @@ export default class Render {
     const cube = new THREE.BoxBufferGeometry(
       0.1, 0.1, 6.5
     );
-    const octa = new THREE.BoxBufferGeometry(
-      0.2, 6.5, 0.5
-    );
     // const cube = new THREE.TetrahedronBufferGeometry(
     //   0.6, 0
     // );
     // const octa = new THREE.IcosahedronBufferGeometry(
     //   0.8, 0
     // );
-    // const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
     const mat = new THREE.MeshPhongMaterial({
       color: 0xffffff,
       side: THREE.DoubleSide,
     });
 
-    this.octaMesh = new THREE.Mesh(octa, mat);
     this.cubeMesh = new THREE.Mesh(cube, mat);
     this.container = new THREE.Object3D();
     this.container.receiveShadow = true;
@@ -166,8 +163,12 @@ export default class Render {
           `hsl(${(noise * 360 * 5)}, 100%, 50%)`
         );
 
-        const mesh = Math.random() * 255 > 240 ? this.octaMesh.clone(false) : this.cubeMesh.clone(false);
-        mesh.position.set(position.x, position.y, position.z);
+        const mesh = this.cubeMesh.clone(false);
+        mesh.position.set(
+          position.x,
+          position.y,
+          position.z
+        );
         mesh.material = this.cubeMesh.material.clone(false);
         mesh.material.color = color;
         mesh.rotation.x = Math.random() * Math.PI * 2;
@@ -201,7 +202,7 @@ export default class Render {
     } else if (this.keypressed == 115) {
       this.keyspeed = -0.001;
     } else {
-      this.keyspeed = 0;
+      this.keyspeed = 0.0;
     }
   };
 
