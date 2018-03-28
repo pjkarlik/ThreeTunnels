@@ -76,7 +76,7 @@ export default class Render {
 
   createScene = () => {
     const cube = new THREE.BoxBufferGeometry(
-      0.1, 0.1, 7.5
+      0.15, 0.15, 6.5
     );
     // const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const mat = new THREE.MeshPhongMaterial({
@@ -154,8 +154,11 @@ export default class Render {
             position.z * 0.001
           )
         );
+        const cr = Math.abs(255 * Math.sin(noise + i * (1.25) * Math.PI / 180));
+        const cg = Math.abs(255 * Math.sin(noise + i * (2.5) * Math.PI / 180));
+        const cb = Math.abs(255 * Math.sin(noise + i * (3.75) * Math.PI / 180));
         const color = new THREE.Color(
-          `hsl(${(noise * 360 * 5)}, 100%, 50%)`
+          `rgb(${~~(cr * 255.0)}, ${~~(cg)}, ${~~(cb)})`
         );
 
         const mesh = this.cubeMesh.clone(false);

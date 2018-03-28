@@ -1,8 +1,8 @@
 import dat from 'dat-gui';
 import THREE from '../Three';
 
-import fragmentShader from './shader/position/fragmentShadert305';
-import vertexShader from './shader/position/vertexShadert3';
+import fragmentShader from '../shader/position/fragmentShadert305';
+import vertexShader from '../shader/position/vertexShadert3';
 
 // Skybox image imports //
 import xpos from '../../resources/images/yokohama/posx.jpg';

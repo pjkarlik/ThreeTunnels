@@ -78,11 +78,11 @@ export default class Render {
     const cube = new THREE.BoxBufferGeometry(
       3, 3, 3
     );
-    const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    // const mat = new THREE.MeshPhongMaterial({
-    //   color: 0xffffff,
-    //   side: THREE.DoubleSide,
-    // });
+    // const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const mat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+    });
     this.cubeMesh = new THREE.Mesh(cube, mat);
     this.container = new THREE.Object3D();
     this.container.receiveShadow = true;
