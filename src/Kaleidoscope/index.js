@@ -273,8 +273,8 @@ export default class Render {
     this.meshMaterial.uniforms.needsUpdate = true;
     // this.meshMaterial2.uniforms.needsUpdate = true;
     // Get stopFrame
-    this.stopFrame += (this.speed * 0.00001);
-    const realTime = this.frames * 0.005;
+    this.stopFrame += (this.speed * 0.000005);
+    const realTime = this.frames * 0.002;
     // Get the point at the specific percentage
     const lvc = this.isRnd ? 0.03 : -(0.03);
     const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));
@@ -309,7 +309,7 @@ export default class Render {
 
   renderLoop = () => {
     window.requestAnimationFrame(this.renderLoop.bind(this));
-    this.frames ++;
+    this.frames += 0.2;
     this.renderScene();
   };
 }
