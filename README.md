@@ -2,7 +2,7 @@
 
 ![ThreeTunnels](./splash.png)
 
-![version](https://img.shields.io/badge/version-0.1.2-yellow.svg) ![webpack2](https://img.shields.io/badge/webpack-2.0-brightgreen.svg) ![frontend](https://img.shields.io/badge/webgl-GLSL-blue.svg)
+![version](https://img.shields.io/badge/version-0.2.0-e05d44.svg?style=flat-square) ![threejs](https://img.shields.io/badge/threejs-0.100.0-e09844.svg?style=flat-square) ![webpack](https://img.shields.io/badge/webpack-4.12.1-51b1c5.svg?style=flat-square)  ![WebGL](https://img.shields.io/badge/webgl-GLSL-blue.svg?style=flat-square)
 
 # ThreeJS Tunnels
 

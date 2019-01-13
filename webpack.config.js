@@ -5,9 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 const pkgInfo = require('./package.json');
-const AutoPrefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const { name, version, description } = pkgInfo;
 
@@ -19,6 +18,7 @@ const marker = 'debug';
 const config = {
   name: 'ThreeTunnels',
   target: 'web',
+  mode: 'development',
   devServer: {
     disableHostCheck: true,
     host: '0.0.0.0',
@@ -43,7 +43,7 @@ const config = {
       {
         test: /\.(js|jsx)$/,
         include: [
-          /src/
+          /src/, /resources/
         ],
         use: [
           {
@@ -62,31 +62,7 @@ const config = {
         ]
       },
       {
-        test: /\.less$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
-              options: {
-                modules: true,
-                importLoaders: 1,
-                localIdentName: '[name]__[local]___[hash:base64:5]'
-              }
-            },
-            {
-              loader: 'postcss-loader',
-              options: {
-                plugins: () => [AutoPrefixer]
-              }
-            },
-            'less-loader'
-          ],
-          publicPath: '../'
-        })
-      },
-      {
-        test: /\.(png|gif|cur|jpg|jpeg)$/,
+        test: /\.(png|gif|cur|jpg)$/,
         use: [
           {
             loader: 'file-loader',
@@ -109,17 +85,6 @@ const config = {
         ]
       },
       {
-        test: /\.(woff2|woff|eot|ttf|svg)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: 'fonts/[name]_[hash:base64:5].[ext]'
-            }
-          }
-        ]
-      },
-      {
         test: /\.js$/,
         enforce: 'pre',
         use: [
@@ -134,8 +99,8 @@ const config = {
     ]
   },
   plugins: [
-    new ExtractTextPlugin({
-      filename: `style/[name].${marker}.[contenthash].css`,
+    new MiniCssExtractPlugin({
+      filename: '[name].[contenthash].css',
       allChunks: true
     }),
     new HtmlWebpackPlugin({
