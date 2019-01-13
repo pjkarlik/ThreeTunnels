@@ -27,7 +27,3 @@
 $ yarn install
 $ yarn dev & open http://localhost:2020
 ```
-
-## License
-
-[MIT]
