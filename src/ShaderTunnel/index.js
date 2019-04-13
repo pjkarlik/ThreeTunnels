@@ -57,10 +57,10 @@ export default class Render {
     this.bufferScene = new THREE.Scene();
     // this.scene.fog = new THREE.FogExp2(0x000000, 0.0275);
     this.camera = new THREE.PerspectiveCamera(
-        this.cameraConfig.viewAngle,
-        this.cameraConfig.aspect,
-        this.cameraConfig.near,
-        this.cameraConfig.far
+      this.cameraConfig.viewAngle,
+      this.cameraConfig.aspect,
+      this.cameraConfig.near,
+      this.cameraConfig.far
     );
 
     this.camera.position.set(...this.cameraConfig.position);
@@ -82,9 +82,24 @@ export default class Render {
     skybox.mapping = THREE.CubeRefractionMapping;
     this.scene.background = skybox;
 
+    this.effectsSetup();
     this.createScene();
   };
 
+  effectsSetup = () => {
+    // let effect;
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+
+    const renderPass = new THREE.RenderPass(this.scene, this.camera);
+    this.composer.addPass(renderPass);
+
+    this.effect = new THREE.ShaderPass(THREE.KaleidoShader);
+    this.effect.uniforms.sides.value = 19;
+    this.effect.renderToScreen = true;
+    this.composer.addPass(this.effect);
+  };
+  
   getRandomVector = () => {
     const x = 0.0 + Math.random() * 255;
     const y = 0.0 + Math.random() * 255;
@@ -97,11 +112,11 @@ export default class Render {
     return new THREE.Mesh(
       new THREE.TubeGeometry(
         new THREE.CatmullRomCurve3(this.makeRandomPath(points)),
-          600,
-          size,
-          16,
-          false
-        ),
+        600,
+        size,
+        16,
+        false
+      ),
       this.meshMaterial,
     );
   };
@@ -184,8 +199,6 @@ export default class Render {
     //   this.tubes.push(tube);
     // }
 
-    // this.effect = new THREE.AnaglyphEffect(this.renderer);
-    // this.effect.setSize(this.width, this.height);
     setTimeout(() => {
       this.allowChange = true;
     }, this.timeout);
@@ -249,7 +262,8 @@ export default class Render {
     this.lightA.position.set(p2.x, p2.y, p2.z);
     this.lightB.position.set(p3.x, p3.y, p3.z);
     // Core three Render call //
-    this.renderer.render(this.scene, this.camera);
+    this.composer.render();
+    // this.renderer.render(this.scene, this.camera);
     // this.effect.render(this.scene, this.camera);
   };
 

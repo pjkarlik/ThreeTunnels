@@ -1,8 +1,8 @@
 import THREE from './../Three';
 
 import stone from '../../resources/images/6920.jpg';
-// import bmp from '../resources/images/matallo_bmp.jpg';
-const bmp = stone;
+import bmp from '../../resources/images/6920-bmp.jpg';
+
 // Render Class Object //
 export default class Render {
   constructor() {
@@ -44,10 +44,10 @@ export default class Render {
     this.bufferScene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0x000000, 0.01);
     this.camera = new THREE.PerspectiveCamera(
-        this.cameraConfig.viewAngle,
-        this.cameraConfig.aspect,
-        this.cameraConfig.near,
-        this.cameraConfig.far
+      this.cameraConfig.viewAngle,
+      this.cameraConfig.aspect,
+      this.cameraConfig.near,
+      this.cameraConfig.far
     );
 
     this.camera.position.set(...this.cameraConfig.position);
@@ -75,7 +75,7 @@ export default class Render {
   createScene = () => {
     const texloader = new THREE.TextureLoader();
     /* eslint no-multi-assign: 0 */
-    const rpt = 100;
+    const rpt = 140;
     const texture = texloader.load(stone, () => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.offset.set(0, 0);
@@ -90,7 +90,7 @@ export default class Render {
     this.tunnelMaterial = new THREE.MeshPhongMaterial({
       map: texture,
       bumpMap: bmpMap,
-      bumpScale: 0.55,
+      bumpScale: 1.0,
       specularMap: bmpMap,
       specular: new THREE.Color(0xAAAAFA),
       side: THREE.DoubleSide,
@@ -115,7 +115,7 @@ export default class Render {
     const tube = new THREE.Mesh(
       new THREE.TubeGeometry(this.path, 100, 15, 15, true),
       this.tunnelMaterial
-  );
+    );
     // Add tube into the scene
     this.scene.add(tube);
 

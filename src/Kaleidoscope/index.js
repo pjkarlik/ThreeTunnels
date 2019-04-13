@@ -1,8 +1,8 @@
-import dat from 'dat-gui';
+import dat from 'dat.gui';
 import THREE from '../Three';
 
-import fragmentShader from '../shader/position/fragmentShadert305';
-import vertexShader from '../shader/position/vertexShadert3';
+import fragmentShader from '../shader/simplex/fragmentShaderAlt';
+import vertexShader from '../shader/simplex/vertexShader';
 
 // Skybox image imports //
 import xpos from '../../resources/images/yokohama/posx.jpg';
@@ -12,23 +12,19 @@ import yneg from '../../resources/images/yokohama/negy.jpg';
 import zpos from '../../resources/images/yokohama/posz.jpg';
 import zneg from '../../resources/images/yokohama/negz.jpg';
 
-
 // Render Class Object //
 export default class Render {
   constructor() {
     this.start = Date.now();
     this.angle = 255.0;
-    this.dec = 68.0;
+    this.dec = 155.0;
     this.frames = 0;
-    this.speed = 62;
-    this.sides = 8;
-    this.hueShift = 65;
-    this.vector = { x: 512, y: 512 };
     this.stopFrame = 0;
+    this.speed = 0.2;
+    this.sides = 3;
     this.tubes = [];
     this.isRnd = true;
     this.allowChange = false;
-    this.stopFrame = 0.00001;
     this.timeout = 6000;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -52,22 +48,51 @@ export default class Render {
     this.init();
   }
 
+  createGUI = () => {
+    this.options = {
+      sides: this.sides,
+      speed: this.speed,
+      hueShift: this.hueShift,
+      dec: this.dec
+    };
+    this.gui = new dat.GUI();
+
+    const folderRender = this.gui.addFolder('Render Options');
+    folderRender.add(this.options, 'sides', 2, 32).step(1)
+      .onFinishChange((value) => {
+        this.sides = value;
+        this.effect.uniforms.sides.value = this.sides;
+      });
+    folderRender.add(this.options, 'speed', 0, 1).step(0.01)
+      .onFinishChange((value) => {
+        this.speed = value;
+      });
+    folderRender.add(this.options, 'dec', 0, 500).step(1)
+      .onFinishChange((value) => {
+        this.dec = value;
+        this.meshMaterial.uniforms.dec.value = this.dec;
+        this.meshMaterial.uniforms.needsUpdate = true;
+      });
+
+    folderRender.open();
+  };
+
   init = () => {
     // Set Render and Scene //
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(this.devicePixelRatio);
-    this.renderer.setFaceCulling(THREE.CullFaceNone);
+
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
     this.bufferScene = new THREE.Scene();
     // this.scene.fog = new THREE.FogExp2(0x000000, 0.0275);
     this.camera = new THREE.PerspectiveCamera(
-        this.cameraConfig.viewAngle,
-        this.cameraConfig.aspect,
-        this.cameraConfig.near,
-        this.cameraConfig.far
+      this.cameraConfig.viewAngle,
+      this.cameraConfig.aspect,
+      this.cameraConfig.near,
+      this.cameraConfig.far
     );
 
     this.camera.position.set(...this.cameraConfig.position);
@@ -88,45 +113,25 @@ export default class Render {
     skybox.format = THREE.RGBFormat;
     skybox.mapping = THREE.CubeRefractionMapping;
     this.scene.background = skybox;
-    this.skybox = skybox;
+
+    this.effectsSetup();
     this.createScene();
-    this.setOptions();
   };
 
-  createGUI = () => {
-    this.options = {
-      sides: this.sides,
-      speed: this.speed,
-      hueShift: this.hueShift,
-      dec: this.dec,
-      vectorX: this.vector.x,
-      vectorY: this.vector.y
-    };
-    this.gui = new dat.GUI();
+  effectsSetup = () => {
+    // let effect;
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    const folderRender = this.gui.addFolder('Render Options');
-    folderRender.add(this.options, 'sides', 2, 32).step(1)
-      .onFinishChange((value) => {
-        this.sides = value;
-        this.setOptions();
-      });
-    folderRender.add(this.options, 'speed', 1, 500).step(1)
-      .onFinishChange((value) => {
-        this.speed = value;
-        this.setOptions();
-      });
-    folderRender.add(this.options, 'dec', 0, 100).step(1)
-      .onFinishChange((value) => {
-        this.dec = value;
-        this.setOptions();
-      });
+    const renderPass = new THREE.RenderPass(this.scene, this.camera);
+    this.composer.addPass(renderPass);
 
-    folderRender.open();
-  };
-
-  setOptions() {
+    this.effect = new THREE.ShaderPass(THREE.KaleidoShader);
     this.effect.uniforms.sides.value = this.sides;
-  }
+    this.effect.renderToScreen = true;
+    this.composer.addPass(this.effect);
+  };
+  
   getRandomVector = () => {
     const x = 0.0 + Math.random() * 255;
     const y = 0.0 + Math.random() * 255;
@@ -139,20 +144,18 @@ export default class Render {
     return new THREE.Mesh(
       new THREE.TubeGeometry(
         new THREE.CatmullRomCurve3(this.makeRandomPath(points)),
-          600,
-          size,
-          16,
-          false
-        ),
-      this.meshMaterial2,
+        600,
+        size,
+        16,
+        false
+      ),
+      this.meshMaterial,
     );
   };
 
   createScene = () => {
     /* eslint no-multi-assign: 0 */
     const uniforms = THREE.UniformsUtils.merge([
-      THREE.UniformsLib.lights,
-      THREE.UniformsLib.shadowmap,
       {
         map: {
           type: 't',
@@ -183,6 +186,7 @@ export default class Render {
       vertexShader,
       fragmentShader,
       transparent: true,
+      opacity: 0.5,
       side: THREE.DoubleSide
     });
 
@@ -209,34 +213,27 @@ export default class Render {
       new THREE.TubeGeometry(
         this.path1,
         300,
-        55,
+        25,
         24,
         true
       ),
-      this.meshMaterial
+      this.meshMaterial,
     );
-
+    tube1.geometry.computeVertexNormals();
+    tube1.castShadow = true;
+    tube1.receiveShadow = true;
     this.scene.add(tube1);
 
-    this.effectsSetup();
+    // for (let i = 0; i < 12; i++) {
+    //   const tube = this.makeTube(initialPoints);
+    //   this.scene.add(tube);
+    //   this.tubes.push(tube);
+    // }
+
     setTimeout(() => {
       this.allowChange = true;
     }, this.timeout);
     this.renderLoop();
-  };
-
-  effectsSetup = () => {
-    let effect;
-    this.composer = new THREE.EffectComposer(this.renderer);
-    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
-
-    const renderPass = new THREE.RenderPass(this.scene, this.camera);
-    this.composer.addPass(renderPass);
-
-    this.effect = new THREE.ShaderPass(THREE.KaleidoShader);
-    this.effect.uniforms.sides.value = 19;
-    this.effect.renderToScreen = true;
-    this.composer.addPass(this.effect);
   };
 
   makeRandomPath = (pointList) => {
@@ -268,13 +265,10 @@ export default class Render {
     // Shader Code //
     const timeNow = (Date.now() - this.start) / 1000;
     this.meshMaterial.uniforms.time.value = timeNow;
-    // this.meshMaterial2.uniforms.time.value = timeNow;
-    this.meshMaterial.uniforms.dec.value = this.dec;
     this.meshMaterial.uniforms.needsUpdate = true;
-    // this.meshMaterial2.uniforms.needsUpdate = true;
     // Get stopFrame
-    this.stopFrame += (this.speed * 0.000005);
-    const realTime = this.frames * 0.002;
+    this.stopFrame += (this.speed * 0.001);
+    const realTime = this.frames * 0.005;
     // Get the point at the specific percentage
     const lvc = this.isRnd ? 0.03 : -(0.03);
     const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));
@@ -289,14 +283,11 @@ export default class Render {
       }, this.timeout);
     }
 
-    const amps = 12 * Math.sin(realTime + 1 * Math.PI / 180);
-    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.25;
-    const tempY = 1 + amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.25;
-
-    // this.huez.uniforms.amount.value = tempX * 0.1;
-    // this.huez.uniforms.angle.value = 0; //Math.sin(tempX * Math.PI / 180) * 255;
+    const amps = 15 * Math.sin(realTime + 1 * Math.PI / 180);
+    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.45;
+    const tempY = 3 * Math.sin(realTime + 1 * Math.PI / 180) * 0.25;
     // Camera
-    this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z);
+    this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z - tempY);
     this.camera.lookAt(p2);
     // Lights
     this.lightA.position.set(p2.x, p2.y, p2.z);
@@ -309,7 +300,7 @@ export default class Render {
 
   renderLoop = () => {
     window.requestAnimationFrame(this.renderLoop.bind(this));
-    this.frames += 0.2;
+    this.frames ++;
     this.renderScene();
   };
 }

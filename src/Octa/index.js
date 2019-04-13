@@ -31,8 +31,7 @@ export default class Render {
       detail: 7,
       radius: 3
     };
-    this.geometry = null;
-
+ 
     window.addEventListener('resize', this.resize, true);
 
     this.init();
@@ -47,12 +46,12 @@ export default class Render {
 
     this.scene = new THREE.Scene();
     this.bufferScene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x000000, 0.01);
+    this.scene.fog = new THREE.FogExp2(0x000000, 0.004);
     this.camera = new THREE.PerspectiveCamera(
-        this.cameraConfig.viewAngle,
-        this.cameraConfig.aspect,
-        this.cameraConfig.near,
-        this.cameraConfig.far
+      this.cameraConfig.viewAngle,
+      this.cameraConfig.aspect,
+      this.cameraConfig.near,
+      this.cameraConfig.far
     );
 
     this.camera.position.set(...this.cameraConfig.position);
@@ -95,9 +94,6 @@ export default class Render {
     this.path.closed = true;
 
     const frames = this.path.computeFrenetFrames(this.tubeCongif.segments, true);
-
-    this.geometry = new THREE.Geometry();
-    this.color = new THREE.Color(0x000000);
 
     for (let i = 0; i < this.tubeCongif.segments; i++) {
       const normal = frames.normals[i];
@@ -150,8 +146,7 @@ export default class Render {
   };
 
   renderScene = () => {
-    // const realTime = this.frames * 0.005;
-    this.stopFrame += 0.0008;
+    this.stopFrame += 0.0006;
     // Get the point at the specific percentage
     const lvc = this.isRnd ? 0.06 : -(0.06);
     const p1 = this.path.getPointAt(Math.abs((this.stopFrame) % 1));
@@ -178,7 +173,6 @@ export default class Render {
 
   renderLoop = () => {
     window.requestAnimationFrame(this.renderLoop.bind(this));
-    this.frames ++;
     this.renderScene();
   };
 }
