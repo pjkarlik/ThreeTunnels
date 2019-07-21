@@ -1,8 +1,7 @@
-import THREE from '../Three';
+import THREE from "../Three";
 
-import stone from '../../resources/images/matallo.jpg';
-import bmp from '../../resources/images/matallo_bmp.jpg';
-import stone2 from '../../resources/images/corrugated2.jpg';
+import stone from "../../resources/images/matallo.jpg";
+import stone2 from "../../resources/images/corrugated2.jpg";
 
 // Render Class Object //
 export default class Render {
@@ -34,7 +33,7 @@ export default class Render {
       min: 0
     };
 
-    window.addEventListener('resize', this.resize, true);
+    window.addEventListener("resize", this.resize, true);
     this.init();
   }
 
@@ -59,11 +58,11 @@ export default class Render {
     this.camera.lookAt(new THREE.Vector3(...this.cameraConfig.lookAt));
     this.scene.add(this.camera);
 
-    this.lightA = new THREE.PointLight(0xAA0000, 1, 650);
+    this.lightA = new THREE.PointLight(0xaa0000, 1, 650);
     this.scene.add(this.lightA);
-    this.lightB = new THREE.PointLight(0xFFAA00, 1, 350);
+    this.lightB = new THREE.PointLight(0xffaa00, 1, 350);
     this.scene.add(this.lightB);
-    this.lightC = new THREE.PointLight(0x00FF00, 1, 550);
+    this.lightC = new THREE.PointLight(0x00ff00, 1, 550);
     this.scene.add(this.lightC);
     this.createScene();
   };
@@ -75,7 +74,7 @@ export default class Render {
     return new THREE.Vector3(x, y, z);
   };
 
-  makeTube = (points) => {
+  makeTube = points => {
     const size = 0.3 + Math.random();
     return new THREE.Mesh(
       new THREE.TubeGeometry(
@@ -85,7 +84,7 @@ export default class Render {
         16,
         false
       ),
-      this.tunnelMaterial2,
+      this.tunnelMaterial2
     );
   };
 
@@ -95,27 +94,21 @@ export default class Render {
     const texture = texloader.load(stone, () => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.offset.set(0, 0);
-      texture.repeat.set(30, 4);
-    });
-    const bmpMap = texloader.load(bmp, () => {
-      bmpMap.wrapS = bmpMap.wrapT = THREE.RepeatWrapping;
-      texture.offset.set(0, 0);
-      texture.repeat.set(30, 4);
+      texture.repeat.set(40, 5);
     });
     const texture2 = texloader.load(stone2, () => {
       texture2.wrapS = texture2.wrapT = THREE.RepeatWrapping;
       texture2.offset.set(0, 0);
-      texture2.repeat.set(500, 1);
+      texture2.repeat.set(600, 1);
     });
     this.tunnelMaterial = new THREE.MeshPhongMaterial({
       map: texture,
       side: THREE.DoubleSide,
-      bumpMap: bmpMap,
-      bumpScale: 0.95,
+      bumpScale: 0.95
     });
     this.tunnelMaterial2 = new THREE.MeshPhongMaterial({
       map: texture2,
-      side: THREE.DoubleSide,
+      side: THREE.DoubleSide
     });
     const initialPoints = [
       [0.0, 0.0, 600.0],
@@ -129,7 +122,7 @@ export default class Render {
       [0.0, 0.0, 600.0]
     ];
 
-    const points = initialPoints.map((point) => {
+    const points = initialPoints.map(point => {
       const v3Point = new THREE.Vector3(...point);
       return v3Point;
     });
@@ -137,14 +130,8 @@ export default class Render {
     this.path1 = new THREE.CatmullRomCurve3(points);
 
     const tube1 = new THREE.Mesh(
-      new THREE.TubeGeometry(
-        this.path1,
-        150,
-        40,
-        18,
-        true
-      ),
-      this.tunnelMaterial,
+      new THREE.TubeGeometry(this.path1, 150, 40, 18, true),
+      this.tunnelMaterial
     );
     this.scene.add(tube1);
 
@@ -162,7 +149,7 @@ export default class Render {
     this.renderLoop();
   };
 
-  makeRandomPath = (pointList) => {
+  makeRandomPath = pointList => {
     this.pointsIndex = [];
     // const totalItems = pointList.length;
     const randomPoints = pointList.map((point, index) => {
@@ -191,8 +178,8 @@ export default class Render {
     // const realTime = this.frames * 0.005;
     this.stopFrame += 0.00095;
     // Get the point at the specific percentage
-    const lvc = this.isRnd ? 0.03 : -(0.03);
-    const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));
+    const lvc = this.isRnd ? 0.03 : -0.03;
+    const p1 = this.path1.getPointAt(Math.abs(this.stopFrame % 1));
     const p2 = this.path1.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
     const p3 = this.path1.getPointAt(Math.abs((this.stopFrame + 0.07) % 1));
     const p4 = this.path1.getPointAt(Math.abs((this.stopFrame - 0.07) % 1));
@@ -205,8 +192,8 @@ export default class Render {
     }
 
     const amps = 45; // + Math.sin(realTime * Math.PI / 180) * 45;
-    const tempX = amps * Math.sin(this.frames * Math.PI / 180) * 0.45;
-    const tempY = amps * Math.cos(this.frames * Math.PI / 180) * 0.45;
+    const tempX = amps * Math.sin((this.frames * Math.PI) / 180) * 0.45;
+    const tempY = amps * Math.cos((this.frames * Math.PI) / 180) * 0.45;
     // Camera
     this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z + tempY);
     this.camera.lookAt(p2);
@@ -221,7 +208,7 @@ export default class Render {
 
   renderLoop = () => {
     window.requestAnimationFrame(this.renderLoop.bind(this));
-    this.frames ++;
+    this.frames++;
     this.renderScene();
   };
 }

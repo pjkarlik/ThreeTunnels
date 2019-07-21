@@ -1,27 +1,27 @@
-import dat from 'dat.gui';
-import THREE from '../Three';
+import dat from "dat.gui";
+import THREE from "../Three";
 
-import fragmentShader from '../shader/simplex/fragmentShaderAlt';
-import vertexShader from '../shader/simplex/vertexShader';
+import fragmentShader from "../shader/simplex/fragmentShaderAlt";
+import vertexShader from "../shader/simplex/vertexShader";
 
 // Skybox image imports //
-import xpos from '../../resources/images/yokohama/posx.jpg';
-import xneg from '../../resources/images/yokohama/negx.jpg';
-import ypos from '../../resources/images/yokohama/posy.jpg';
-import yneg from '../../resources/images/yokohama/negy.jpg';
-import zpos from '../../resources/images/yokohama/posz.jpg';
-import zneg from '../../resources/images/yokohama/negz.jpg';
+import xpos from "../../resources/images/yokohama/posx.jpg";
+import xneg from "../../resources/images/yokohama/negx.jpg";
+import ypos from "../../resources/images/yokohama/posy.jpg";
+import yneg from "../../resources/images/yokohama/negy.jpg";
+import zpos from "../../resources/images/yokohama/posz.jpg";
+import zneg from "../../resources/images/yokohama/negz.jpg";
 
 // Render Class Object //
 export default class Render {
   constructor() {
     this.start = Date.now();
     this.angle = 255.0;
-    this.dec = 155.0;
+    this.dec = 90.0;
     this.frames = 0;
     this.stopFrame = 0;
-    this.speed = 0.2;
-    this.sides = 3;
+    this.speed = 0.04;
+    this.sides = 2;
     this.tubes = [];
     this.isRnd = true;
     this.allowChange = false;
@@ -43,7 +43,7 @@ export default class Render {
       min: 0
     };
 
-    window.addEventListener('resize', this.resize, true);
+    window.addEventListener("resize", this.resize, true);
     this.createGUI();
     this.init();
   }
@@ -57,18 +57,24 @@ export default class Render {
     };
     this.gui = new dat.GUI();
 
-    const folderRender = this.gui.addFolder('Render Options');
-    folderRender.add(this.options, 'sides', 2, 32).step(1)
-      .onFinishChange((value) => {
+    const folderRender = this.gui.addFolder("Render Options");
+    folderRender
+      .add(this.options, "sides", 2, 32)
+      .step(1)
+      .onFinishChange(value => {
         this.sides = value;
         this.effect.uniforms.sides.value = this.sides;
       });
-    folderRender.add(this.options, 'speed', 0, 1).step(0.01)
-      .onFinishChange((value) => {
+    folderRender
+      .add(this.options, "speed", 0, 1)
+      .step(0.01)
+      .onFinishChange(value => {
         this.speed = value;
       });
-    folderRender.add(this.options, 'dec', 0, 500).step(1)
-      .onFinishChange((value) => {
+    folderRender
+      .add(this.options, "dec", 0, 500)
+      .step(1)
+      .onFinishChange(value => {
         this.dec = value;
         this.meshMaterial.uniforms.dec.value = this.dec;
         this.meshMaterial.uniforms.needsUpdate = true;
@@ -102,9 +108,9 @@ export default class Render {
     // Set Light //
     // this.camlight = new THREE.PointLight(0xAAAAAA, 5, 80);
     // this.scene.add(this.camlight);
-    this.lightA = new THREE.PointLight(0xFFFFFF, 1, 250);
+    this.lightA = new THREE.PointLight(0xffffff, 1, 250);
     this.scene.add(this.lightA);
-    this.lightB = new THREE.PointLight(0xFFFFFF, 1, 350);
+    this.lightB = new THREE.PointLight(0xffffff, 1, 350);
     this.scene.add(this.lightB);
 
     // Skybox //
@@ -112,7 +118,7 @@ export default class Render {
     const skybox = new THREE.CubeTextureLoader().load(urls);
     skybox.format = THREE.RGBFormat;
     skybox.mapping = THREE.CubeRefractionMapping;
-    this.scene.background = skybox;
+    // this.scene.background = skybox;
 
     this.effectsSetup();
     this.createScene();
@@ -131,7 +137,7 @@ export default class Render {
     this.effect.renderToScreen = true;
     this.composer.addPass(this.effect);
   };
-  
+
   getRandomVector = () => {
     const x = 0.0 + Math.random() * 255;
     const y = 0.0 + Math.random() * 255;
@@ -139,7 +145,7 @@ export default class Render {
     return new THREE.Vector3(x, y, z);
   };
 
-  makeTube = (points) => {
+  makeTube = points => {
     const size = 0.1 + Math.random();
     return new THREE.Mesh(
       new THREE.TubeGeometry(
@@ -149,7 +155,7 @@ export default class Render {
         16,
         false
       ),
-      this.meshMaterial,
+      this.meshMaterial
     );
   };
 
@@ -158,27 +164,27 @@ export default class Render {
     const uniforms = THREE.UniformsUtils.merge([
       {
         map: {
-          type: 't',
+          type: "t",
           value: 1,
-          texture: null,
+          texture: null
         },
         time: {
-          type: 'f',
-          value: this.start,
+          type: "f",
+          value: this.start
         },
         angle: {
-          type: 'f',
-          value: this.angle,
+          type: "f",
+          value: this.angle
         },
         dec: {
-          type: 'f',
-          value: this.dec,
+          type: "f",
+          value: this.dec
         },
         resolution: {
-          type: 'v2',
-          value: new THREE.Vector3(),
-        },
-      },
+          type: "v2",
+          value: new THREE.Vector3()
+        }
+      }
     ]);
 
     this.meshMaterial = new THREE.ShaderMaterial({
@@ -202,7 +208,7 @@ export default class Render {
       [0.0, 0.0, 600.0]
     ];
 
-    const points = initialPoints.map((point) => {
+    const points = initialPoints.map(point => {
       const v3Point = new THREE.Vector3(...point);
       return v3Point;
     });
@@ -210,14 +216,8 @@ export default class Render {
     this.path1 = new THREE.CatmullRomCurve3(points);
 
     const tube1 = new THREE.Mesh(
-      new THREE.TubeGeometry(
-        this.path1,
-        300,
-        25,
-        24,
-        true
-      ),
-      this.meshMaterial,
+      new THREE.TubeGeometry(this.path1, 300, 25, 24, true),
+      this.meshMaterial
     );
     tube1.geometry.computeVertexNormals();
     tube1.castShadow = true;
@@ -236,10 +236,10 @@ export default class Render {
     this.renderLoop();
   };
 
-  makeRandomPath = (pointList) => {
+  makeRandomPath = pointList => {
     this.pointsIndex = [];
     // const totalItems = pointList.length;
-    const randomPoints = pointList.map((point) => {
+    const randomPoints = pointList.map(point => {
       const check = true; // index > 0 && index < totalItems;
       const rx = 20 - Math.random() * 40;
       const ry = 20 - Math.random() * 40;
@@ -267,11 +267,11 @@ export default class Render {
     this.meshMaterial.uniforms.time.value = timeNow;
     this.meshMaterial.uniforms.needsUpdate = true;
     // Get stopFrame
-    this.stopFrame += (this.speed * 0.001);
+    this.stopFrame += this.speed * 0.001;
     const realTime = this.frames * 0.005;
     // Get the point at the specific percentage
-    const lvc = this.isRnd ? 0.03 : -(0.03);
-    const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));
+    const lvc = this.isRnd ? 0.03 : -0.03;
+    const p1 = this.path1.getPointAt(Math.abs(this.stopFrame % 1));
     const p2 = this.path1.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
     const p3 = this.path1.getPointAt(Math.abs((this.stopFrame + 0.06) % 1));
 
@@ -283,9 +283,9 @@ export default class Render {
       }, this.timeout);
     }
 
-    const amps = 15 * Math.sin(realTime + 1 * Math.PI / 180);
-    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.45;
-    const tempY = 3 * Math.sin(realTime + 1 * Math.PI / 180) * 0.25;
+    const amps = 15 * Math.sin(realTime + (1 * Math.PI) / 180);
+    const tempX = amps * Math.cos(realTime + (1 * Math.PI) / 180) * 0.45;
+    const tempY = 3 * Math.sin(realTime + (1 * Math.PI) / 180) * 0.25;
     // Camera
     this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z - tempY);
     this.camera.lookAt(p2);
@@ -300,7 +300,7 @@ export default class Render {
 
   renderLoop = () => {
     window.requestAnimationFrame(this.renderLoop.bind(this));
-    this.frames ++;
+    this.frames++;
     this.renderScene();
   };
 }

@@ -184,11 +184,11 @@ void main() {
   ), vec3(0.0, 0.0, 0.0));
 
   float o = (noise * 255.0);
-  float r = sin(o * 0.15);
-  float g = sin(o * 0.05);
-  float b = sin(o * 0.25);
-  // vec3 colorz = vec3(r, g, b);
-  vec3 colorz = vec3(r);
+  float r = sin(o * 0.5);
+  float g = sin(o * 0.4);
+  float b = sin(o * 0.3);
+  vec3 colorz = vec3(r, g, b);
+  // vec3 colorz = vec3(r);
   gl_FragColor = vec4(colorz, r);
 
 }
